@@ -56,9 +56,10 @@ class BookController extends Controller
 
         $book = Book::create($request->only(['title', 'author_id', 'genre_id', 'description']));
 
+
         if ($request->hasFile('cover_image')) {
             $book->addMediaFromRequest('cover_image')
-                ->toMediaCollection('cover_images'); // Ensure it uses the default storage disk
+                ->toMediaCollection('cover_images');
         }
 
         return redirect()->route('books.index')->with('success', 'Book created successfully.');
@@ -71,8 +72,40 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
-        return Inertia::render('Books/Show', ['book' => $book]);
+        $book->load(['author', 'genre', 'reviews.user']);
+
+        $userReview = null;
+        if (auth()->check()) {
+            $userReview = $book->reviews->firstWhere('user_id', auth()->id());
+        }
+
+        $averageRating = $book->reviews->avg('stars');
+
+        return Inertia::render('Books/Show', [
+            'book' => [
+                'id' => $book->id,
+                'title' => $book->title,
+                'author' => $book->author,
+                'genre' => $book->genre,
+                'description' => $book->description,
+                'cover_image' => $book->getFirstMediaUrl('cover_images') ?: null,
+                'reviews' => $book->reviews->map(function ($review) {
+                    return [
+                        'id' => $review->id,
+                        'stars' => $review->stars,
+                        'comment' => $review->comment,
+                        'user' => $review->user->name,
+                        'created_at' => $review->created_at->diffForHumans(),
+                    ];
+                }),
+                'average_rating' => round($averageRating, 1),
+            ],
+            'userReview' => $userReview,
+        ]);
     }
+
+
+
 
     /**
      * Show the form for editing the specified resource.
@@ -103,9 +136,9 @@ class BookController extends Controller
         $book->update($request->only(['title', 'author_id', 'genre_id', 'description']));
 
         if ($request->hasFile('cover_image')) {
-            $book->clearMediaCollection('cover_images'); // Remove old image
+            $book->clearMediaCollection('cover_images');
             $book->addMediaFromRequest('cover_image')
-                ->toMediaCollection('cover_images'); // Ensure correct storage
+                ->toMediaCollection('cover_images');
         }
 
         return redirect()->route('books.index')->with('success', 'Book updated successfully.');
@@ -120,5 +153,77 @@ class BookController extends Controller
         $book->delete();
 
         return redirect()->route('books.index')->with('success', 'Book deleted successfully.');
+    }
+
+
+    public function duplicate(Request $request)
+    {
+        $request->validate([
+            'book_ids' => 'required|array',
+            'book_ids.*' => 'exists:books,id',
+        ]);
+
+        foreach ($request->book_ids as $id) {
+            $book = Book::with('media')->find($id);
+
+            $newBook = $book->replicate();
+            $newBook->title .= ' (Copy)';
+            $newBook->save();
+
+            if ($book->hasMedia('cover_images')) {
+                foreach ($book->getMedia('cover_images') as $media) {
+                    $media->copy($newBook, 'cover_images');
+                }
+            }
+        }
+
+        return redirect()->route('books.index')->with('success', 'Selected books duplicated successfully.');
+    }
+
+
+
+    public function allBooks(Request $request)
+    {
+        $query = Book::with(['author', 'genre']);
+
+        if ($request->filled('search')) {
+            $query->where('title', 'like', '%' . $request->search . '%');
+        }
+
+        if ($request->filled('author_id')) {
+            $query->where('author_id', $request->author_id);
+        }
+
+        if ($request->has('sort_by')) {
+            if ($request->sort_by === 'author') {
+                $query->whereHas('author')->orderBy(
+                    Author::select('name')->whereColumn('authors.id', 'books.author_id')
+                );
+            } elseif ($request->sort_by === 'genre') {
+                $query->whereHas('genre')->orderBy(
+                    Genre::select('name')->whereColumn('genres.id', 'books.genre_id')
+                );
+            }
+        }
+
+        $books = $query->paginate(9)->withQueryString()
+            ->through(function ($book) {
+                return [
+                    'id' => $book->id,
+                    'title' => $book->title,
+                    'author' => $book->author,
+                    'genre' => $book->genre,
+                    'description' => $book->description,
+                    'cover_image' => $book->getFirstMediaUrl('cover_images') ?: null,
+                ];
+            });
+
+        $authors = Author::orderBy('name')->get(['id', 'name']);
+
+        return Inertia::render('Books/AllBooks', [
+            'books' => $books,
+            'authors' => $authors,
+            'filters' => $request->only('search', 'sort_by', 'author_id'),
+        ]);
     }
 }
