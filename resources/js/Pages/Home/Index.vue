@@ -1,6 +1,7 @@
 <script setup>
-import { Head } from '@inertiajs/vue3';
-import Navbar from '@/Components/Navbar.vue'; // Import the Navbar
+import { Head, Link } from '@inertiajs/vue3';
+import Navbar from '@/Components/Navbar.vue';
+import BookCarousel from '@/Components/BookCarousel.vue';
 import { defineProps } from 'vue';
 
 defineProps({
@@ -11,10 +12,12 @@ defineProps({
 <template>
     <Head title="Home" />
 
-    <!-- Navbar for the Home Page -->
     <Navbar />
 
-    <!-- Home Page Content -->
+    <div class="w-full">
+        <BookCarousel :books="books.slice(0, 4)" />
+    </div>
+
     <div class="py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
         <h1 class="text-2xl font-bold mb-6 text-center">Latest Books</h1>
 

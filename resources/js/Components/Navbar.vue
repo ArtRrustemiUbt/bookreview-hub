@@ -9,21 +9,22 @@ const isOpen = ref(false);
     <nav class="bg-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div class="flex justify-between h-16">
-                <!-- Logo -->
                 <div class="flex-shrink-0 flex items-center">
                     <Link :href="route('home')" class="text-xl font-bold text-blue-600">
                         BookReview Hub
                     </Link>
                 </div>
 
-                <!-- Desktop Navigation Links -->
                 <div class="hidden sm:flex sm:items-center sm:space-x-6 gap-6">
                     <Link :href="route('home')" class="text-gray-700 hover:text-blue-600">Home</Link>
                     <Link :href="route('books.index')" class="text-gray-700 hover:text-blue-600">Books</Link>
                     <Link :href="route('books.create')" class="text-gray-700 hover:text-blue-600">Add Book</Link>
+                    <Link :href="route('books.all')" class="bg-green-500 text-white px-4 py-2 rounded mt-4 inline-block text-center">
+                        View All Books
+                    </Link>
+
                 </div>
 
-                <!-- Mobile Menu Button -->
                 <div class="sm:hidden flex items-center">
                     <button @click="isOpen = !isOpen" class="text-gray-700 hover:text-blue-600 focus:outline-none">
                         <svg v-if="!isOpen" xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
@@ -41,7 +42,6 @@ const isOpen = ref(false);
             </div>
         </div>
 
-        <!-- Mobile Navigation Links -->
         <div v-if="isOpen" class="sm:hidden bg-white shadow-md">
             <div class="px-4 pt-2 pb-4 space-y-2">
                 <Link :href="route('books.index')" class="block text-gray-700 hover:text-blue-600">Books</Link>
