@@ -36,6 +36,7 @@ const deleteBook = (id) => {
                         <th class="border border-gray-300 px-4 py-2">Title</th>
                         <th class="border border-gray-300 px-4 py-2">Author</th>
                         <th class="border border-gray-300 px-4 py-2">Description</th>
+                        <th class="border border-gray-300 px-4 py-2">Cover Image</th>
                         <th class="border border-gray-300 px-4 py-2">Actions</th>
                     </tr>
                 </thead>
@@ -45,6 +46,11 @@ const deleteBook = (id) => {
                         <td class="px-4 py-2">{{ book.author?.name || 'No Author Assigned' }}</td>
                         <td class="px-4 py-2">
                             {{ book.description.length > 50 ? book.description.slice(0, 50) + '...' : book.description }}
+                        </td>
+                        <td class="px-4 py-2">
+                            <div v-if="book.cover_image">
+                                <img :src="book.cover_image.startsWith('http') ? book.cover_image : '/storage/' + book.cover_image" class="w-16 h-auto" />
+                            </div>
                         </td>
                         <td class="px-4 py-2">
                             <Link :href="route('books.edit', book.id)" class="text-blue-500 mr-2">Edit</Link>

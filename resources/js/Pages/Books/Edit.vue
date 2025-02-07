@@ -13,7 +13,7 @@ const form = ref({
     title: props.book.title,
     author_id: props.book.author_id,
     genre_id: props.book.genre_id, // Pre-fill genre selection
-    description: props.book.description,
+    description: props.book.description, // Include description
 });
 
 const updateBook = () => {
@@ -54,6 +54,11 @@ const updateBook = () => {
                                 {{ genre.name }}
                             </option>
                         </select>
+                    </div>
+
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium">Description</label>
+                        <textarea v-model="form.description" class="w-full border rounded-lg px-4 py-2" rows="4"></textarea>
                     </div>
 
                     <div class="flex items-center justify-between">

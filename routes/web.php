@@ -2,24 +2,27 @@
 
 use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\BookController;
-use App\Http\Controllers\AuthorController;    
+use App\Http\Controllers\AuthorController;
+use App\Http\Controllers\HomeController;    
 use Illuminate\Foundation\Application;
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
 use App\Http\Controllers\GenreController;
 
-Route::get('/', function () {
-    return Inertia::render('Welcome', [
-        'canLogin' => Route::has('login'),
-        'canRegister' => Route::has('register'),
-        'laravelVersion' => Application::VERSION,
-        'phpVersion' => PHP_VERSION,
-    ]);
-});
+// Route::get('/', function () {
+//     return Inertia::render('Welcome', [
+//         'canLogin' => Route::has('login'),
+//         'canRegister' => Route::has('register'),
+//         'laravelVersion' => Application::VERSION,
+//         'phpVersion' => PHP_VERSION,
+//     ]);
+// });
+
+Route::get('/', [HomeController::class, 'index'])->name('home');
 
 Route::get('/dashboard', function () {
     return Inertia::render('Dashboard');
-})->middleware(['auth', 'verified', 'role:admin'])->name('dashboard');
+})->middleware(['auth', 'verified'])->name('dashboard');
 
 Route::resource('books', BookController::class);
 Route::resource('authors', AuthorController::class); 

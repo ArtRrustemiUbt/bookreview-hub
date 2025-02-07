@@ -13,10 +13,22 @@ const form = ref({
     author_id: '',
     genre_id: '',
     description: '',
+    cover_image: null, // Store the selected file
 });
 
 const submitBook = () => {
-    router.post(route('books.store'), form.value);
+    const formData = new FormData();
+    Object.keys(form.value).forEach(key => {
+        if (form.value[key]) {
+            formData.append(key, form.value[key]);
+        }
+    });
+
+    router.post(route('books.store'), formData, {
+        headers: {
+            'Content-Type': 'multipart/form-data'
+        }
+    });
 };
 </script>
 
@@ -31,7 +43,12 @@ const submitBook = () => {
 
         <div class="py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
             <div class="bg-white shadow-sm sm:rounded-lg p-6">
-                <form @submit.prevent="submitBook">
+                <form @submit.prevent="submitBook" enctype="multipart/form-data">
+                    <div class="mb-4">
+                        <label class="block text-gray-700 font-medium">Cover Image</label>
+                        <input type="file" @change="e => form.cover_image = e.target.files[0]" class="w-full border rounded-lg px-4 py-2" />
+                    </div>
+
                     <div class="mb-4">
                         <label class="block text-gray-700 font-medium">Title</label>
                         <input v-model="form.title" type="text" class="w-full border rounded-lg px-4 py-2" required />
