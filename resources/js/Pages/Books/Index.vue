@@ -47,7 +47,10 @@ const deleteBook = (id) => {
         <div class="py-12 mx-auto max-w-7xl sm:px-6 lg:px-8">
 
             <div class="mb-4 flex justify-between">
-                <Link :href="route('books.create')" class="bg-blue-500 text-white px-4 py-2 rounded">
+                <div>
+    {{ $page.props.auth.user.role }}
+</div>
+                <Link v-if="$page.props.auth.user.role === 'admin'" :href="route('books.create')" class="bg-blue-500 text-white px-4 py-2 rounded">
                     Add New Book
                 </Link>
                 <button @click="duplicateBooks" class="bg-green-500 text-white px-4 py-2 rounded">

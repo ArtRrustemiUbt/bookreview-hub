@@ -1,9 +1,26 @@
 <script setup>
-import { ref } from 'vue';
-import { Link } from '@inertiajs/vue3';
+import { ref, computed } from 'vue';
+import { Link, usePage, router } from '@inertiajs/vue3';
 
 const isOpen = ref(false);
+const page = usePage();
+
+// Extract props from Inertia shared data
+const isAuthenticated = computed(() => page.props.auth.user?.isAuthenticated || false);
+const userRole = computed(() => page.props.auth.user?.role || null);
+
+// Debugging
+console.log("User Authenticated:", isAuthenticated.value);
+
+const logout = () => {
+    router.post(route('logout'), {}, {
+        preserveScroll: true,
+        onSuccess: () => console.log("Logged out successfully"),
+        onError: (errors) => console.error("Logout error:", errors)
+    });
+};
 </script>
+
 
 <template>
     <nav class="bg-white shadow-md">
@@ -17,12 +34,19 @@ const isOpen = ref(false);
 
                 <div class="hidden sm:flex sm:items-center sm:space-x-6 gap-6">
                     <Link :href="route('home')" class="text-gray-700 hover:text-blue-600">Home</Link>
-                    <Link :href="route('books.index')" class="text-gray-700 hover:text-blue-600">Books</Link>
-                    <Link :href="route('books.create')" class="text-gray-700 hover:text-blue-600">Add Book</Link>
-                    <Link :href="route('books.all')" class="bg-green-500 text-white px-4 py-2 rounded mt-4 inline-block text-center">
+                    <!--<Link :href="route('books.index')" class="text-gray-700 hover:text-blue-600">Books</Link> -->
+                   <!-- <Link v-if="userRole === 'admin'" :href="route('books.create')" class="text-gray-700 hover:text-blue-600">Add Book</Link>-->
+                    <Link :href="route('books.all')" class="text-gray-700 hover:text-blue-600">
                         View All Books
                     </Link>
 
+                    <Link v-if="userRole === 'admin'" :href="route('admin.notifications')" class="relative text-gray-700 hover:text-blue-600">
+                        Notifications
+                        <span v-if="notificationsCount > 0"
+                              class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-2">
+                            {{ notificationsCount }}
+                        </span>
+                    </Link>
                 </div>
 
                 <div class="sm:hidden flex items-center">
@@ -39,17 +63,49 @@ const isOpen = ref(false);
                         </svg>
                     </button>
                 </div>
+
+                <div v-if="isOpen" class="sm:hidden bg-white shadow-md">
+                    <div class="px-4 pt-2 pb-4 space-y-2">
+                        <Link :href="route('books.index')" class="block text-gray-700 hover:text-blue-600">Books</Link>
+                        <Link :href="route('books.create')" class="block text-gray-700 hover:text-blue-600">Add Book</Link>
+
+                        <Link v-if="userRole === 'admin'" :href="route('admin.notifications')" class="block text-gray-700 hover:text-blue-600">
+                            Notifications
+                            <span v-if="notificationsCount > 0"
+                                class="ml-2 bg-red-500 text-white text-xs font-bold rounded-full px-2">
+                                {{ notificationsCount }}
+                            </span>
+                        </Link>
+                    </div>
+                </div>
+
+                <div v-if="!isAuthenticated" class="flex items-center space-x-2">
+                    <Link :href="route('register')" class="px-4 py-2 text-sm font-medium text-cyan-600 bg-cyan-100 rounded-md hover:bg-cyan-200">
+                        Register
+                    </Link>
+                    <Link :href="route('login')" class="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-md hover:bg-blue-700">
+                        Login
+                    </Link>
+                </div>
+
+                <div v-if="isAuthenticated" class="flex items-center">
+                    <form @submit.prevent="logout">
+                        <button type="submit" class="px-4 py-2 text-sm font-medium text-white bg-red-500 rounded-md hover:bg-red-600">
+                            Logout
+                        </button>
+                    </form>
+                </div>
             </div>
         </div>
 
-        <div v-if="isOpen" class="sm:hidden bg-white shadow-md">
-            <div class="px-4 pt-2 pb-4 space-y-2">
-                <Link :href="route('books.index')" class="block text-gray-700 hover:text-blue-600">Books</Link>
-                <Link :href="route('books.create')" class="block text-gray-700 hover:text-blue-600">Add Book</Link>
-            </div>
-        </div>
+        
+
+        
+
+        
     </nav>
 </template>
+
 
 <style scoped>
 /* Optional: Add custom styles if needed */

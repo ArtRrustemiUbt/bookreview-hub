@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use Inertia\Inertia;
 use App\Models\Book;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Http\Request;
 
@@ -13,7 +14,7 @@ class HomeController extends Controller
     {
         $books = Book::with(['author', 'genre'])
             ->latest()
-            ->take(10) // Show the latest 10 books for now
+            ->take(10)
             ->get()
             ->map(function ($book) {
                 return [
@@ -26,6 +27,11 @@ class HomeController extends Controller
                 ];
             });
 
-        return Inertia::render('Home/Index', ['books' => $books]);
+
+        return Inertia::render('Home/Index', [
+            'books' => $books,
+            'userRole' => Auth::check() ? Auth::user()->getRoleNames()->first() : null,
+            'isAuthenticated' => Auth::check(),
+        ]);
     }
 }

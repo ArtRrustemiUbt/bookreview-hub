@@ -54,7 +54,7 @@ const submitReview = () => {
                 
                 <div class="flex-1">
                     <h1 class="text-3xl font-bold mb-2">{{ props.book.title }}</h1>
-                    <p class="text-lg text-gray-700 mb-1">Author: <span class="font-medium">{{ props.book.author?.name || 'No Author' }}</span></p>
+                    
                     <p class="text-lg text-gray-700 mb-1">
                         Author: 
                         <Link v-if="props.book.author" 

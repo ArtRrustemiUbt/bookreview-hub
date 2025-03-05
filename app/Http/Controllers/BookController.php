@@ -72,6 +72,7 @@ class BookController extends Controller
      */
     public function show(Book $book)
     {
+
         $book->load(['author', 'genre', 'reviews.user']);
 
         $userReview = null;

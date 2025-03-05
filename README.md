@@ -77,3 +77,15 @@
 
 BookReview Hub is a feature-rich platform that combines powerful backend technologies with an intuitive frontend to create an engaging book discovery and review experience. With scalable architecture and clean design, it’s built to grow with its user base and continuously evolve with new features.
 
+
+
+
+# Build and start containers in the background
+docker-compose up -d --build
+
+# Run migrations inside the app container
+docker exec -it laravel-app php artisan migrate
+
+# Install and compile Vue.js assets
+docker exec -it node-app npm install
+docker exec -it node-app npm run dev

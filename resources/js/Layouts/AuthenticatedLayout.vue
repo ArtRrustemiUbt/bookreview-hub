@@ -7,6 +7,10 @@ import NavLink from '@/Components/NavLink.vue';
 import ResponsiveNavLink from '@/Components/ResponsiveNavLink.vue';
 import { Link } from '@inertiajs/vue3';
 
+defineProps({
+    notificationsCount: Number // ✅ Receive notification count from Dashboard.vue
+});
+
 const showingNavigationDropdown = ref(false);
 </script>
 
@@ -30,7 +34,7 @@ const showingNavigationDropdown = ref(false);
                             </div>
 
                             <!-- Navigation Links -->
-                            <div
+                            <div v-if="$page.props.auth.user.role === 'admin'"
                                 class="hidden space-x-8 sm:-my-px sm:ms-10 sm:flex"
                             >
                                 <NavLink
@@ -57,6 +61,16 @@ const showingNavigationDropdown = ref(false);
                                 >
                                     Genres
                                 </NavLink>
+                                <NavLink :href="route('admin.notifications')" class="relative">
+                                    Notifications
+                                    <span v-if="notificationsCount > 0"
+                                          class="absolute top-0 right-0 bg-red-500 text-white text-xs font-bold rounded-full px-2">
+                                        {{ notificationsCount }}
+                                    </span>
+                                </NavLink>
+
+                                <!-- Navigation Links -->
+
                             </div>
                         </div>
 
